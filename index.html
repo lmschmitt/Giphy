@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Gif</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="css/reset.css" />
+    <script src="https://code.jquery.com/jquery-2.2.3.js" integrity="sha256-laXWtGydpwqJ8JA+X9x2miwmaiKhn8tVmOVEigRNtP4=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class = "container">
+        <div id="buttons"></div>
+        <form id="add">
+            <label for="add">Add another gif</label>
+            <input type="text" class = "form-control" id="add-input">
+            <br>
+            <!-- Button triggers new movie to be added -->
+            <input id="add-button" type="submit" value="Add a giphy" class="btn btn-default">
+        </form>
+        <div id="images"></div>
+    </div>
+    <script type="text/javascript">
+    var topics = ["john oliver", "bill maher", "john stewart", "stephen colbert"];
+
+    function displayButtons() {
+        for (i = 0; i < topics.length; i++) {
+            var a = $("<button>");
+            a.addClass("giphy btn btn-primary");
+            a.attr("data-name", topics[i]);
+            a.text(topics[i]);
+            $("#buttons").append(a);
+        }
+        $(".giphy").on("click", function() {
+            gif = $(this).attr("data-name");
+            console.log(gif);
+            var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + gif + "&api_key=dc6zaTOxFJmzC&limit=10"
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            })
+
+            .done(function(response) {
+                // var state = $(this).attr("data-state");
+                // var gif = $(this).attr("data-name");
+                var results = response.data;
+                // response(response.data);
+
+                for (var i = 0; i < results.length; i++) {
+
+                    var gifDiv = $("<div class='gifDiv'>");
+                    var images = $("<img class='gif'>");
+                    images.attr("src", results[i].images.fixed_height_small_still.url);
+                    images.attr("data-still", results[i].images.fixed_height_small_still.url);
+                    images.attr("data-animate", results[i].images.fixed_height.url);
+                    images.attr("data-state", "still");
+                    var rating = results[i].rating;
+
+                    images.attr("data-state", "still")
+                    var p = $("<p>").text("Rating: " + rating);
+                    gifDiv.append(p);
+                    gifDiv.append(images);
+                    $("#images").prepend(gifDiv);
+                 }   
+
+                 $(".gif").on("click", function(){
+                var state = $(this).attr("data-state");
+                 if (state === "still") {
+                    $(this).attr("src", $(this).attr("data-animate"));
+                    $(this).attr("data-state", "animate");
+                  } else {
+                    $(this).attr("src", $(this).attr("data-still"));
+                    $(this).attr("data-state", "still");
+                  }
+            });     
+            });     
+        });
+            
+
+
+    };
+
+    displayButtons()
+
+    $("#add-button").on("click", function(event) {
+        event.preventDefault();
+        $("#buttons").empty();
+        var addTopic = $("#add-input").val().trim();
+        topics.push(addTopic);
+        displayButtons();
+        console.log(topics);
+    });
+    </script>
+</body>
+
+</html>
